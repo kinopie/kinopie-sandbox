@@ -17,7 +17,7 @@ public class Statemachine<S, E> {
 	}
 
 	public Statemachine(Map<Trigger<S, E>, Action<S, E>> actions, Action<S, E> fallback) {
-		this.actions = actions;
+		this.actions = Objects.requireNonNull(actions, "Argument 'actions' must not be null.");
 		this.fallback = fallback;
 	}
 
@@ -42,6 +42,10 @@ public class Statemachine<S, E> {
 			// TODO WARNログでエントリの重複を通知
 		}
 		actions.put(trigger, action);
+	}
+
+	public void fallback(Action<S, E> fallback) {
+		this.fallback = fallback;
 	}
 
 	@Override
