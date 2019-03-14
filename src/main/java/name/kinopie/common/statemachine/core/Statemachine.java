@@ -2,47 +2,39 @@ package name.kinopie.common.statemachine.core;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import lombok.NonNull;
+import lombok.ToString;
+
+@ToString(of = { "actions", "fallback" })
 public class Statemachine<S, E, C extends ActionContext<S, E>> {
 	private Map<Trigger<S, E>, Function<C, S>> actions = new LinkedHashMap<>();
-	@SuppressWarnings("unchecked")
-	private BiFunction<S, E, C> contextFactory = (s, e) -> (C) new ActionContext<S, E>() {
-		@Override
-		public S getState() {
-			return s;
-		}
-
-		@Override
-		public E getEvent() {
-			return e;
-		}
-	};
+	private BiFunction<S, E, C> contextFactory;
 	private Function<C, S> fallback;
 
+	@SuppressWarnings("unchecked")
 	public Statemachine() {
+		this((s, e) -> (C) new ActionContext<S, E>() {
+			@Override
+			public S getState() {
+				return s;
+			}
+
+			@Override
+			public E getEvent() {
+				return e;
+			}
+		});
 	}
 
-	public Statemachine(Map<Trigger<S, E>, Function<C, S>> actions) {
-		this.actions = Objects.requireNonNull(actions, "Argument 'actions' must not be null.");
-	}
-
-	public Statemachine(BiFunction<S, E, C> contextFactory) {
-		this.contextFactory = Objects.requireNonNull(contextFactory, "Argument 'contextFactory' must not be null.");
-	}
-
-	public Statemachine(Map<Trigger<S, E>, Function<C, S>> actions, BiFunction<S, E, C> contextFactory) {
-		this.actions = Objects.requireNonNull(actions, "Argument 'actions' must not be null.");
-		this.contextFactory = Objects.requireNonNull(contextFactory, "Argument 'contextFactory' must not be null.");
+	public Statemachine(@NonNull BiFunction<S, E, C> contextFactory) {
+		this.contextFactory = contextFactory;
 	}
 
 	public S send(S state, E event) {
-		// FIXME 固有の例外を送出するほうがベターかも
-		Objects.requireNonNull(state, "Argument 'state' must not be null.");
-		Objects.requireNonNull(event, "Argument 'event' must not be null.");
-		Trigger<S, E> trigger = Trigger.when(state, event);
+		Trigger<S, E> trigger = new Trigger<>(state, event);
 		Function<C, S> action = actions.getOrDefault(trigger, fallback);
 		if (action == null) {
 			throw new UnresolvableTriggerException(this, trigger);
@@ -51,11 +43,8 @@ public class Statemachine<S, E, C extends ActionContext<S, E>> {
 		return action.apply(context);
 	}
 
-	public void entry(S state, E event, Function<C, S> action) {
-		Objects.requireNonNull(state, "Argument 'state' must not be null.");
-		Objects.requireNonNull(event, "Argument 'event' must not be null.");
-		Objects.requireNonNull(action, "Argument 'action' must not be null.");
-		Trigger<S, E> trigger = Trigger.when(state, event);
+	public void entry(S state, E event, @NonNull Function<C, S> action) {
+		Trigger<S, E> trigger = new Trigger<>(state, event);
 		if (actions.containsKey(trigger)) {
 			// TODO WARNログでエントリの重複を通知
 		}
@@ -64,10 +53,5 @@ public class Statemachine<S, E, C extends ActionContext<S, E>> {
 
 	public void fallback(Function<C, S> fallback) {
 		this.fallback = fallback;
-	}
-
-	@Override
-	public String toString() {
-		return "Statemachine [actions=" + actions + ", fallback=" + fallback + "]";
 	}
 }

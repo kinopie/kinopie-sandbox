@@ -1,5 +1,8 @@
 package name.kinopie.common.statemachine.core;
 
+import lombok.Getter;
+
+@Getter
 public class UnresolvableTriggerException extends StatemachineException {
 	/**
 	 * serialVersionUID
@@ -8,13 +11,9 @@ public class UnresolvableTriggerException extends StatemachineException {
 
 	private Trigger<?, ?> trigger;
 
-	UnresolvableTriggerException(Statemachine<?, ?, ?> statemachine, Trigger<?, ?> trigger) {
+	public UnresolvableTriggerException(Statemachine<?, ?, ?> statemachine, Trigger<?, ?> trigger) {
 		super(statemachine);
 		this.trigger = trigger;
-	}
-
-	public Trigger<?, ?> getTrigger() {
-		return trigger;
 	}
 
 	@Override

@@ -98,7 +98,7 @@ public class StatemachineTest {
 			aidcStatemachine.send(FlightState.PreNotifying, MsgId.TOC);
 			fail();
 		} catch (UnresolvableTriggerException e) {
-			assertThat(e.getTrigger(), is(Trigger.when(FlightState.PreNotifying, MsgId.TOC)));
+			assertThat(e.getTrigger(), is(new Trigger<>(FlightState.PreNotifying, MsgId.TOC)));
 			assertThat(e.getStatemachine(), is(aidcStatemachine));
 		}
 	}

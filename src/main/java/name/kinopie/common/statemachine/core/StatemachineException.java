@@ -1,5 +1,10 @@
 package name.kinopie.common.statemachine.core;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public abstract class StatemachineException extends RuntimeException {
 
 	/**
@@ -8,12 +13,4 @@ public abstract class StatemachineException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	private Statemachine<?, ?, ?> statemachine;
-
-	public StatemachineException(Statemachine<?, ?, ?> statemachine) {
-		this.statemachine = statemachine;
-	}
-
-	public Statemachine<?, ?, ?> getStatemachine() {
-		return statemachine;
-	}
 }

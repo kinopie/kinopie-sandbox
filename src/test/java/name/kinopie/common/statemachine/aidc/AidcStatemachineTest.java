@@ -7,16 +7,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import name.kinopie.common.statemachine.core.ActionContext;
+import name.kinopie.common.statemachine.core.Statemachine;
 import name.kinopie.common.statemachine.core.Trigger;
 import name.kinopie.common.statemachine.core.UnresolvableTriggerException;
 
 public class AidcStatemachineTest {
 
-	private AidcStatemachine aidcStatemachine;
+	private Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>> aidcStatemachine;
 
 	@Before
 	public void setUp() throws Exception {
-		aidcStatemachine = new AidcStatemachine();
+		aidcStatemachine = new AidcStatemachineSupplier().get();
 	}
 
 	@After
@@ -63,7 +65,7 @@ public class AidcStatemachineTest {
 			aidcStatemachine.send(FlightState.PreNotifying, MsgId.TOC);
 			fail();
 		} catch (UnresolvableTriggerException e) {
-			assertThat(e.getTrigger(), is(Trigger.when(FlightState.PreNotifying, MsgId.TOC)));
+			assertThat(e.getTrigger(), is(new Trigger<>(FlightState.PreNotifying, MsgId.TOC)));
 			assertThat(e.getStatemachine(), is(aidcStatemachine));
 		}
 	}
