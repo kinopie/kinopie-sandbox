@@ -1,4 +1,4 @@
-package name.kinopie.common.sm;
+package name.kinopie.common.statemachine.core;
 
 public abstract class StatemachineException extends RuntimeException {
 
@@ -7,13 +7,13 @@ public abstract class StatemachineException extends RuntimeException {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Statemachine<?, ?> statemachine;
+	private Statemachine<?, ?, ?> statemachine;
 
-	public StatemachineException(Statemachine<?, ?> statemachine) {
+	public StatemachineException(Statemachine<?, ?, ?> statemachine) {
 		this.statemachine = statemachine;
 	}
 
-	public Statemachine<?, ?> getStatemachine() {
+	public Statemachine<?, ?, ?> getStatemachine() {
 		return statemachine;
 	}
 }

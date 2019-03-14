@@ -1,10 +1,10 @@
-package name.kinopie.common.sm;
+package name.kinopie.common.statemachine.core;
 
 public class Trigger<S, E> {
 	private S state;
 	private E event;
 
-	public Trigger(S state, E event) {
+	private Trigger(S state, E event) {
 		this.state = state;
 		this.event = event;
 	}
@@ -15,6 +15,10 @@ public class Trigger<S, E> {
 
 	public E getEvent() {
 		return event;
+	}
+
+	public static <S, E> Trigger<S, E> when(S state, E event) {
+		return new Trigger<S, E>(state, event);
 	}
 
 	@Override

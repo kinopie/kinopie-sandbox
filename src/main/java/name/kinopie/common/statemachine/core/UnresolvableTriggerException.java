@@ -1,4 +1,4 @@
-package name.kinopie.common.sm;
+package name.kinopie.common.statemachine.core;
 
 public class UnresolvableTriggerException extends StatemachineException {
 	/**
@@ -8,7 +8,7 @@ public class UnresolvableTriggerException extends StatemachineException {
 
 	private Trigger<?, ?> trigger;
 
-	UnresolvableTriggerException(Statemachine<?, ?> statemachine, Trigger<?, ?> trigger) {
+	UnresolvableTriggerException(Statemachine<?, ?, ?> statemachine, Trigger<?, ?> trigger) {
 		super(statemachine);
 		this.trigger = trigger;
 	}
