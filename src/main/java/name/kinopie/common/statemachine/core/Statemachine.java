@@ -11,7 +11,7 @@ public class Statemachine<S, E, C extends ActionContext<S, E>> {
 	@SuppressWarnings("unchecked")
 	private BiFunction<S, E, C> contextFactory = (s, e) -> (C) new ActionContext<S, E>() {
 		@Override
-		public S getCurrentState() {
+		public S getState() {
 			return s;
 		}
 
@@ -38,24 +38,24 @@ public class Statemachine<S, E, C extends ActionContext<S, E>> {
 		this.contextFactory = Objects.requireNonNull(contextFactory, "Argument 'contextFactory' must not be null.");
 	}
 
-	public S send(S currentState, E event) {
+	public S send(S state, E event) {
 		// FIXME 固有の例外を送出するほうがベターかも
-		Objects.requireNonNull(currentState, "Argument 'state' must not be null.");
+		Objects.requireNonNull(state, "Argument 'state' must not be null.");
 		Objects.requireNonNull(event, "Argument 'event' must not be null.");
-		Trigger<S, E> trigger = Trigger.when(currentState, event);
+		Trigger<S, E> trigger = Trigger.when(state, event);
 		Function<C, S> action = actions.getOrDefault(trigger, fallback);
 		if (action == null) {
 			throw new UnresolvableTriggerException(this, trigger);
 		}
-		C context = contextFactory.apply(currentState, event);
+		C context = contextFactory.apply(state, event);
 		return action.apply(context);
 	}
 
-	public void entry(S currentState, E event, Function<C, S> action) {
-		Objects.requireNonNull(currentState, "Argument 'state' must not be null.");
+	public void entry(S state, E event, Function<C, S> action) {
+		Objects.requireNonNull(state, "Argument 'state' must not be null.");
 		Objects.requireNonNull(event, "Argument 'event' must not be null.");
 		Objects.requireNonNull(action, "Argument 'action' must not be null.");
-		Trigger<S, E> trigger = Trigger.when(currentState, event);
+		Trigger<S, E> trigger = Trigger.when(state, event);
 		if (actions.containsKey(trigger)) {
 			// TODO WARNログでエントリの重複を通知
 		}
