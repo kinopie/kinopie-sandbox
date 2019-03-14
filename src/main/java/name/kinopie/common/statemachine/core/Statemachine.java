@@ -26,16 +26,16 @@ public class Statemachine<S, E, C extends ActionContext<S, E>> {
 	}
 
 	public Statemachine(Map<Trigger<S, E>, Function<C, S>> actions) {
-		this.actions = Objects.requireNonNull(actions, "actions must not be null.");
+		this.actions = Objects.requireNonNull(actions, "Argument 'actions' must not be null.");
 	}
 
 	public Statemachine(BiFunction<S, E, C> contextFactory) {
-		this.contextFactory = Objects.requireNonNull(contextFactory, "contextFactory must not be null.");
+		this.contextFactory = Objects.requireNonNull(contextFactory, "Argument 'contextFactory' must not be null.");
 	}
 
 	public Statemachine(Map<Trigger<S, E>, Function<C, S>> actions, BiFunction<S, E, C> contextFactory) {
-		this.actions = Objects.requireNonNull(actions, "actions must not be null.");
-		this.contextFactory = Objects.requireNonNull(contextFactory, "contextFactory must not be null.");
+		this.actions = Objects.requireNonNull(actions, "Argument 'actions' must not be null.");
+		this.contextFactory = Objects.requireNonNull(contextFactory, "Argument 'contextFactory' must not be null.");
 	}
 
 	public S send(S currentState, E event) {
