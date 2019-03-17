@@ -10,112 +10,143 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import name.kinopie.common.statemachine.aidc.FlightState;
-import name.kinopie.common.statemachine.aidc.MsgId;
-
 public class StatemachineTest {
-	private Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>> aidcStatemachine;
+	private Statemachine<String, String, ActionContext<String, String>, Function<ActionContext<String, String>, String>> statemachine;
+	private String state1 = "state1";
+	private String event1 = "event1";
+	private String state2 = "state2";
+	private String event2 = "event2";
 
+	private String state3 = "state3";
+	
 	@Before
 	public void setUp() throws Exception {
-		// https://www.icao.int/APAC/Documents/edocs/icd_aidc_ver3.pdf の
-		// Figure D -5 Flight State Transitions Diagram を実装
-		aidcStatemachine = new Statemachine<>();
-		aidcStatemachine.entry(FlightState.PreNotifying, MsgId.ABI, context -> FlightState.Notifying);
-
-		aidcStatemachine.entry(FlightState.Notifying, MsgId.ABI, context -> FlightState.Notifying);
-		aidcStatemachine.entry(FlightState.Notifying, MsgId.MAC, context -> FlightState.PreNotifying);
-		aidcStatemachine.entry(FlightState.Notifying, MsgId.CPL, context -> FlightState.Negotiating);
-		aidcStatemachine.entry(FlightState.Notifying, MsgId.EST, context -> FlightState.Coordinating);
-		aidcStatemachine.entry(FlightState.Notifying, MsgId.PAC, context -> FlightState.Coordinating);
-
-		aidcStatemachine.entry(FlightState.Negotiating, MsgId.CDN, context -> FlightState.Negotiating);
-		aidcStatemachine.entry(FlightState.Negotiating, MsgId.ACP, context -> FlightState.Coordinated);
-
-		aidcStatemachine.entry(FlightState.Coordinating, MsgId.ACP, context -> FlightState.Coordinated);
-
-		aidcStatemachine.entry(FlightState.Coordinated, MsgId.MAC, context -> FlightState.PreNotifying);
-		aidcStatemachine.entry(FlightState.Coordinated, MsgId.CDN, context -> FlightState.Renegotiating);
-		aidcStatemachine.entry(FlightState.Coordinated, MsgId.TRU, context -> FlightState.Coordinated);
-		aidcStatemachine.entry(FlightState.Coordinated, MsgId.TOC, context -> FlightState.Transferring);
-
-		aidcStatemachine.entry(FlightState.Renegotiating, MsgId.CDN, context -> FlightState.Renegotiating);
-		aidcStatemachine.entry(FlightState.Renegotiating, MsgId.ACP, context -> FlightState.Coordinated);
-		aidcStatemachine.entry(FlightState.Renegotiating, MsgId.REJ, context -> FlightState.Coordinated);
-
-		aidcStatemachine.entry(FlightState.Transferring, MsgId.AOC, context -> FlightState.Transferred);
-
-		aidcStatemachine.entry(FlightState.Transferred, MsgId.CDN, context -> FlightState.BackwardRenegotiating);
-
-		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.CDN,
-				context -> FlightState.BackwardRenegotiating);
-		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.REJ, context -> FlightState.Transferred);
-		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.ACP, context -> FlightState.Transferred);
+		statemachine = new Statemachine<>();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		aidcStatemachine = null;
+		statemachine = null;
 	}
 
 	@Test
-	public void test() {
-		assertThat(aidcStatemachine.send(FlightState.PreNotifying, MsgId.ABI), is(FlightState.Notifying));
-		assertThat(aidcStatemachine.send(FlightState.Notifying, MsgId.ABI), is(FlightState.Notifying));
-		assertThat(aidcStatemachine.send(FlightState.Notifying, MsgId.MAC), is(FlightState.PreNotifying));
-		assertThat(aidcStatemachine.send(FlightState.Notifying, MsgId.CPL), is(FlightState.Negotiating));
-		assertThat(aidcStatemachine.send(FlightState.Notifying, MsgId.EST), is(FlightState.Coordinating));
-		assertThat(aidcStatemachine.send(FlightState.Notifying, MsgId.PAC), is(FlightState.Coordinating));
-
-		assertThat(aidcStatemachine.send(FlightState.Negotiating, MsgId.CDN), is(FlightState.Negotiating));
-		assertThat(aidcStatemachine.send(FlightState.Negotiating, MsgId.ACP), is(FlightState.Coordinated));
-
-		assertThat(aidcStatemachine.send(FlightState.Coordinating, MsgId.ACP), is(FlightState.Coordinated));
-
-		assertThat(aidcStatemachine.send(FlightState.Coordinated, MsgId.MAC), is(FlightState.PreNotifying));
-		assertThat(aidcStatemachine.send(FlightState.Coordinated, MsgId.CDN), is(FlightState.Renegotiating));
-		assertThat(aidcStatemachine.send(FlightState.Coordinated, MsgId.TRU), is(FlightState.Coordinated));
-		assertThat(aidcStatemachine.send(FlightState.Coordinated, MsgId.TOC), is(FlightState.Transferring));
-
-		assertThat(aidcStatemachine.send(FlightState.Renegotiating, MsgId.CDN), is(FlightState.Renegotiating));
-		assertThat(aidcStatemachine.send(FlightState.Renegotiating, MsgId.ACP), is(FlightState.Coordinated));
-		assertThat(aidcStatemachine.send(FlightState.Renegotiating, MsgId.REJ), is(FlightState.Coordinated));
-
-		assertThat(aidcStatemachine.send(FlightState.Transferring, MsgId.AOC), is(FlightState.Transferred));
-
-		assertThat(aidcStatemachine.send(FlightState.Transferred, MsgId.CDN), is(FlightState.BackwardRenegotiating));
-
-		assertThat(aidcStatemachine.send(FlightState.BackwardRenegotiating, MsgId.CDN),
-				is(FlightState.BackwardRenegotiating));
-		assertThat(aidcStatemachine.send(FlightState.BackwardRenegotiating, MsgId.REJ), is(FlightState.Transferred));
-		assertThat(aidcStatemachine.send(FlightState.BackwardRenegotiating, MsgId.ACP), is(FlightState.Transferred));
-	}
-
-	@Test
-	public void testUnresolvableTriggerException() {
+	public void testNullContextFactory() {
 		try {
-			aidcStatemachine.send(FlightState.PreNotifying, MsgId.TOC);
+			new Statemachine<Object, Object, ActionContext<Object, Object>, Function<ActionContext<Object, Object>, Object>>(
+					null);
+			fail();
+		} catch (NullPointerException e) {
+			assertThat(e.getMessage(), is("contextFactory is marked @NonNull but is null"));
+		}
+	}
+
+	@Test
+	public void testNormalEntry() {
+		TestAction action = new TestAction();
+		statemachine.entry(state1, event1, action);
+		statemachine.send(state1, event1);
+		assertThat(action.getExecutionCount(), is(1));
+	}
+
+	@Test
+	public void testNormalEntry2() {
+		statemachine.entry(state1, event1, context -> state2, context -> state3);
+		statemachine.send(state1, event1);
+		assertThat(statemachine.send(state1, event1), is(state3));
+	}
+	
+	@Test
+	public void testNoEntry_UnresolvableTriggerException() {
+		TestAction action = new TestAction();
+		statemachine.entry(state1, event1, action);
+		try {
+			statemachine.send(state2, event2);
 			fail();
 		} catch (UnresolvableTriggerException e) {
-			assertThat(e.getTrigger(), is(new Trigger<>(FlightState.PreNotifying, MsgId.TOC)));
-			assertThat(e.getStatemachine(), is(aidcStatemachine));
+			assertThat(e.getTrigger(), is(new Trigger<>(state2, event2)));
+			assertThat(e.getStatemachine(), is(statemachine));
+			assertThat(e.getMessage(), is(
+					"Statemachine(actionsForTrigger={Trigger(state=state1, event=event1)=[TestAction]}, fallbacks=[]) cannot resolve Trigger(state=state2, event=event2)"));
 		}
 	}
 
 	@Test
-	public void testDuplicateEntryException() {
-		Statemachine<Object, Object, ActionContext<Object, Object>> statemachine = new Statemachine<>();
-		Object state = new Object();
-		Object event = new Object();
-		Function<ActionContext<Object, Object>, Object> action = context -> context.getState();
-		statemachine.entry(state, event, action);
+	public void testEntry_DuplicateAction1() {
+		TestAction action = new TestAction();
+		statemachine.entry(state1, event1, action);
+		statemachine.entry(state1, event1, action);
+		statemachine.send(state1, event1);
+		assertThat(action.getExecutionCount(), is(2));
+	}
+
+	@Test
+	public void testEntry_DuplicateAction2() {
+		TestAction action = new TestAction();
+		statemachine.entry(state1, event1, action, action);
+		statemachine.send(state1, event1);
+		assertThat(action.getExecutionCount(), is(2));
+	}
+
+	@Test
+	public void testEntry_EmptyAction() {
+		statemachine.entry(state1, event1);
+		statemachine.send(state1, event1);
+	}
+
+	@Test
+	public void testEntry_ActionIsNull() {
 		try {
-			statemachine.entry(state, event, action);
+			statemachine.entry(state1, event1, null);
 			fail();
-		} catch (DuplicateEntryException e) {
-			assertThat(e.getTrigger(), is(new Trigger<>(state, event)));
-			assertThat(e.getStatemachine(), is(statemachine));
-			assertThat(e.getAction(), is(action));
+		} catch (NullPointerException e) {
+			assertThat(e.getMessage(), is("actions is marked @NonNull but is null"));
 		}
+	}
+
+	@Test
+	public void testEntry_ActionsContainNull() {
+		try {
+			statemachine.entry(state1, event1, (Function<ActionContext<String, String>, String>) null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertThat(e.getMessage(), is("actions cannot contain null"));
+		}
+	}
+
+	@Test
+	public void testFallback() {
+		TestAction fallback = new TestAction();
+		statemachine.fallback(fallback);
+		statemachine.send(state1, event1);
+		assertThat(fallback.getExecutionCount(), is(1));
+	}
+
+	@Test
+	public void testFallback_ContainNull() {
+		try {
+			statemachine.fallback((Function<ActionContext<String, String>, String>) null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertThat(e.getMessage(), is("fallbacks cannot contain null"));
+		}
+	}
+}
+
+class TestAction implements Function<ActionContext<String, String>, String> {
+	private int executionCount = 0;
+
+	@Override
+	public String apply(ActionContext<String, String> context) {
+		executionCount++;
+		return context.getState();
+	}
+
+	public int getExecutionCount() {
+		return executionCount;
+	}
+
+	@Override
+	public String toString() {
+		return "TestAction";
 	}
 }

@@ -11,7 +11,7 @@ public class UnresolvableTriggerException extends StatemachineException {
 
 	private Trigger<?, ?> trigger;
 
-	public UnresolvableTriggerException(Statemachine<?, ?, ?> statemachine, Trigger<?, ?> trigger) {
+	public UnresolvableTriggerException(Statemachine<?, ?, ?, ?> statemachine, Trigger<?, ?> trigger) {
 		super(statemachine);
 		this.trigger = trigger;
 	}

@@ -1,5 +1,6 @@
 package name.kinopie.common.statemachine.aidc;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import name.kinopie.common.statemachine.core.ActionContext;
@@ -9,12 +10,12 @@ import name.kinopie.common.statemachine.core.Statemachine;
  * https://www.icao.int/APAC/Documents/edocs/icd_aidc_ver3.pdf の <br/>
  * Figure D -5 Flight State Transitions Diagram を実装
  */
-public class AidcStatemachineSupplier
-		implements Supplier<Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>>> {
+public class AidcStatemachineSupplier implements
+		Supplier<Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>, Function<ActionContext<FlightState, MsgId>, FlightState>>> {
 
 	@Override
-	public Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>> get() {
-		Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>> aidcStatemachine = new Statemachine<>();
+	public Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>, Function<ActionContext<FlightState, MsgId>, FlightState>> get() {
+		Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>, Function<ActionContext<FlightState, MsgId>, FlightState>> aidcStatemachine = new Statemachine<>();
 		aidcStatemachine.entry(FlightState.PreNotifying, MsgId.ABI, context -> FlightState.Notifying);
 
 		aidcStatemachine.entry(FlightState.Notifying, MsgId.ABI, context -> FlightState.Notifying);

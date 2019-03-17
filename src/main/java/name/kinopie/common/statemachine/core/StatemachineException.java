@@ -12,5 +12,5 @@ public abstract class StatemachineException extends RuntimeException {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Statemachine<?, ?, ?> statemachine;
+	private Statemachine<?, ?, ?, ?> statemachine;
 }

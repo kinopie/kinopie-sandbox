@@ -3,6 +3,8 @@ package name.kinopie.common.statemachine.aidc;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import java.util.function.Function;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +16,7 @@ import name.kinopie.common.statemachine.core.UnresolvableTriggerException;
 
 public class AidcStatemachineTest {
 
-	private Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>> aidcStatemachine;
+	private Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>, Function<ActionContext<FlightState, MsgId>, FlightState>> aidcStatemachine;
 
 	@Before
 	public void setUp() throws Exception {
