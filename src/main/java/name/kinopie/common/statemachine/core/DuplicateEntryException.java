@@ -22,6 +22,7 @@ public class DuplicateEntryException extends StatemachineException {
 
 	@Override
 	public String getMessage() {
-		return String.format("%s has duplicate entry %s,%s.", getStatemachine(), getTrigger());
+		return String.format("%s already has the entry%s for action %s.", getStatemachine(), getTrigger(),
+				getAction());
 	}
 }
