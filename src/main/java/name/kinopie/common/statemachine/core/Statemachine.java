@@ -46,7 +46,7 @@ public class Statemachine<S, E, C extends ActionContext<S, E>> {
 	public void entry(S state, E event, @NonNull Function<C, S> action) {
 		Trigger<S, E> trigger = new Trigger<>(state, event);
 		if (actions.containsKey(trigger)) {
-			// TODO WARNログでエントリの重複を通知
+			throw new DuplicateEntryException(this, trigger, action);
 		}
 		actions.put(trigger, action);
 	}

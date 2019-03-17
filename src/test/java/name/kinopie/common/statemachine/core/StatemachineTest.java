@@ -4,16 +4,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.function.Function;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import name.kinopie.common.statemachine.aidc.FlightState;
 import name.kinopie.common.statemachine.aidc.MsgId;
-import name.kinopie.common.statemachine.core.ActionContext;
-import name.kinopie.common.statemachine.core.Statemachine;
-import name.kinopie.common.statemachine.core.Trigger;
-import name.kinopie.common.statemachine.core.UnresolvableTriggerException;
 
 public class StatemachineTest {
 	private Statemachine<FlightState, MsgId, ActionContext<FlightState, MsgId>> aidcStatemachine;
@@ -49,7 +47,8 @@ public class StatemachineTest {
 
 		aidcStatemachine.entry(FlightState.Transferred, MsgId.CDN, context -> FlightState.BackwardRenegotiating);
 
-		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.CDN, context -> FlightState.BackwardRenegotiating);
+		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.CDN,
+				context -> FlightState.BackwardRenegotiating);
 		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.REJ, context -> FlightState.Transferred);
 		aidcStatemachine.entry(FlightState.BackwardRenegotiating, MsgId.ACP, context -> FlightState.Transferred);
 	}
@@ -100,6 +99,23 @@ public class StatemachineTest {
 		} catch (UnresolvableTriggerException e) {
 			assertThat(e.getTrigger(), is(new Trigger<>(FlightState.PreNotifying, MsgId.TOC)));
 			assertThat(e.getStatemachine(), is(aidcStatemachine));
+		}
+	}
+
+	@Test
+	public void testDuplicateEntryException() {
+		Statemachine<Object, Object, ActionContext<Object, Object>> statemachine = new Statemachine<>();
+		Object state = new Object();
+		Object event = new Object();
+		Function<ActionContext<Object, Object>, Object> action = context -> context.getState();
+		statemachine.entry(state, event, action);
+		try {
+			statemachine.entry(state, event, action);
+			fail();
+		} catch (DuplicateEntryException e) {
+			assertThat(e.getTrigger(), is(new Trigger<>(state, event)));
+			assertThat(e.getStatemachine(), is(statemachine));
+			assertThat(e.getAction(), is(action));
 		}
 	}
 }
